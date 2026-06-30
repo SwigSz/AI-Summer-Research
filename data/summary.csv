@@ -1,0 +1,9 @@
+machine,model,mean_decode_tps,mean_prefill_tps,mean_ttft_ms,mem_mb,eff_bw_gbps,spec_bw_gbps
+Mac,llama3.2:3b,187.75,2562.0,214.1,3174.4,379.0,~500-550
+spark-8040,llama3.2:3b,91.75,4721.3,301.9,3174.4,185.0,273
+VeranixWindows,llama3.2:3b,86.95,1035.3,3617.7,3174.4,176.0,~256
+raspberrypi,llama3.2:3b,4.91,13.8,56296.3,3072.0,10.0,~17
+Mac,qwen2.5:7b,103.75,1636.5,281.5,5222.4,486.0,~500-550
+spark-8040,qwen2.5:7b,45.73,2442.6,317.5,5222.4,214.0,273
+VeranixWindows,qwen2.5:7b,46.3,1232.1,3378.4,5120.0,217.0,~256
+raspberrypi,qwen2.5:7b,2.39,6.7,99942.8,4915.2,11.0,~17

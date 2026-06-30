@@ -1,0 +1,9 @@
+machine,model,prompt_tag,temp,decode_tps,prefill_tps,ttft_ms,mem_mb,mem_method,ctx,ts,status
+VeranixWindows,llama3.2:3b,short,0.0,87.06,135.61,3606.4,3174.4,ollama-ps,8192,2026-06-30T18:00:10Z,ok
+VeranixWindows,llama3.2:3b,medium,0.0,84.65,562.69,3393.2,3174.4,ollama-ps,8192,2026-06-30T18:00:16Z,ok
+VeranixWindows,llama3.2:3b,long,0.0,85.61,2681.37,3902.3,3174.4,ollama-ps,8192,2026-06-30T18:00:23Z,ok
+VeranixWindows,llama3.2:3b,summarize,0.0,90.5,761.52,3568.7,3174.4,ollama-ps,8192,2026-06-30T18:00:28Z,ok
+VeranixWindows,qwen2.5:7b,short,0.0,47.54,1121.67,3026.4,5120.0,ollama-ps,8192,2026-06-30T18:00:42Z,ok
+VeranixWindows,qwen2.5:7b,medium,0.0,47.12,1659.61,3074.1,5120.0,ollama-ps,8192,2026-06-30T18:00:51Z,ok
+VeranixWindows,qwen2.5:7b,long,0.0,45.54,1527.88,4045.6,5120.0,ollama-ps,8192,2026-06-30T18:01:01Z,ok
+VeranixWindows,qwen2.5:7b,summarize,0.0,45.0,619.42,3367.7,5120.0,ollama-ps,8192,2026-06-30T18:01:07Z,ok
