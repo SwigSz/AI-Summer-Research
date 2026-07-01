@@ -121,3 +121,7 @@ get pulled on first run.
     ├── results_VeranixWindows.md
     └── results_raspberrypi.md
 ```
+
+## Log
+
+Day 3 (Game Day): one-shot game showdown and 4060 VRAM ceiling. See [gameday.md](gameday.md).
