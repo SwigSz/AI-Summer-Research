@@ -1,127 +1,72 @@
-# Local LLM benchmark: memory bandwidth vs decode speed
+# Building to understand: a summer of local-AI experiments
 
-I ran the same two models across four machines to test one claim: when you run an LLM
-locally, decode speed is set by memory bandwidth, not by compute. The data backs it.
+This repo is my research log for the summer. Each entry is one question about running AI
+locally that I answer by building something and measuring it, not by reading about it. The
+rule is the same every time: run it one-shot or from first principles, log the number, and
+name the failure mode instead of hiding it.
 
-Each generated token reads the model's weights out of memory once. The math per token is
-small, so the read is the slow part. That makes decode a memory-bandwidth problem. Prefill
-(processing the prompt) is the opposite, since it does one large matmul over many tokens at
-once, so it leans on compute.
+Hardware I test across: M5 Max Mac (128 GB unified), DGX Spark GB10 (128 GB unified),
+Surface Laptop Studio 2 (RTX 4060, 8 GB), Raspberry Pi 5. Models run on local Ollama unless
+a frontier model is named.
 
-## Setup
+## Findings so far
 
-One Python script (`bench_harness.py`, standard library only) hits each machine's local
-Ollama at `localhost:11434`, pins context to 8192, warms each model with a throwaway call,
-then times four prompts (short, medium, long, summarize) at temp 0. It logs decode tok/s,
-prefill tok/s, time to first token, and loaded memory from `ollama ps`. Every machine
-writes its own CSV and a results markdown.
+**01 · Decode speed is a memory-bandwidth problem, not a compute one.**
+Ran `llama3.2:3b` and `qwen2.5:7b` across four machines. Decode tok/s tracks memory
+bandwidth, not compute. The Mac decodes ~2x the Spark on identical models because it moves
+~2x the bandwidth, and the discrete-GPU Surface lands right on top of the Grace-Blackwell
+Spark because their bandwidth is close. Realized bandwidth is 65 to 85 percent of spec.
+Prefill flips the ranking, because prefill is compute-bound. → [benchmark.md](benchmark.md)
 
-| machine | hardware | spec mem bandwidth |
-|---|---|---|
-| Mac | M5 Max, 128 GB unified | ~500-550 GB/s |
-| spark-8040 | DGX Spark GB10, 128 GB unified | 273 GB/s |
-| VeranixWindows | Surface Laptop Studio 2, RTX 4060 8 GB | ~256 GB/s |
-| raspberrypi | Pi 5, CPU only | ~17 GB/s |
+**02 · Game Day (Day 3): fast is not capable, and the 8 GB wall is real.**
+Same one-shot prompt (build playable Asteroids as one HTML file, eight features) to three
+backends. Only frontier (Claude Opus 4.8) produced a working game, 8/8. `qwen3:30b` was fast
+at 71 tok/s but wrote confident code that crashes on load; `qwen3:4b` rendered an empty
+shell. Then I walked a size ladder on the 4060: `qwen3:8b` (5.6 GB) is the largest that
+stays fully on GPU at 44 tok/s; `qwen2.5:14b` (10 GB) spills to a 38/62 CPU/GPU split and
+decode collapses 4x to 11 tok/s. Speed never separated the two local models. Capability and
+VRAM did. → [gameday.md](gameday.md)
 
-Models: `llama3.2:3b` and `qwen2.5:7b`, both Q4_K_M.
+**03 · MCP honeypot (Day 4, Jul 3): local models attack decoy tools, and framing decides refusal.**
+Built a deception MCP server exposing four valuable-looking but fake tools (`read_file`,
+`query_database`, `get_api_keys`, `send_notification`) that log every call and return
+fabricated data, with honeytoken tripwires. Then red-teamed it with local models.
+`qwen2.5:7b` took the bait every run (5/5) and tried to exfiltrate the honeytokens.
+`gpt-oss:20b` refused the blatant "steal everything" prompt but complied fully when the same
+goal was reframed as a routine IT task. Same objective, opposite outcome, decided only by
+framing. Refusals are logged as data, not dropped. → [mcp-honeypot/](mcp-honeypot/)
 
-## Decode tok/s
+## The through-line
 
-| model | Mac | spark-8040 | Surface 4060 | Pi 5 |
-|---|---|---|---|---|
-| llama3.2:3b | 187.75 | 91.75 | 86.95 | 4.91 |
-| qwen2.5:7b | 103.75 | 45.73 | 46.30 | 2.39 |
-
-Three things fall out of this table.
-
-The Mac decodes about twice as fast as the Spark on the identical models. The Spark has the
-larger compute budget and still loses, because the Mac moves roughly twice the memory
-bandwidth and decode rides that number. Compute does not enter.
-
-The Surface and the Spark sit on top of each other. Their memory bandwidth is close (~256
-vs 273 GB/s), so their decode lands in the same place even though one is a discrete GPU and
-the other is a Grace-Blackwell SoC.
-
-The Pi is the floor. At ~17 GB/s it manages 5 tok/s on the 3B and 2.4 on the 7B, which is
-about one eighteenth of the Mac. The ratio tracks the bandwidth ratio, not any compute
-spec.
-
-Within each machine the size effect repeats: the 7B decodes roughly half as fast as the 3B,
-matching the size ratio, because there are about twice as many weight bytes to read per
-token.
-
-## Effective bandwidth
-
-Multiply decode tok/s by the Q4 weight size to back out the bandwidth each machine actually
-realizes during decode.
-
-| machine | 3B eff GB/s | 7B eff GB/s | spec GB/s |
-|---|---|---|---|
-| Mac | 379 | 486 | ~500-550 |
-| spark-8040 | 185 | 214 | 273 |
-| Surface 4060 | 176 | 217 | ~256 |
-| Pi 5 | 10 | 11 | ~17 |
-
-Realized bandwidth lands at 65 to 85 percent of spec on every machine. The 7B reads closer
-to the ceiling than the 3B because a larger model spends more of each token on weight reads
-and less on fixed per-token overhead. Use the 7B column as the better estimate of each
-machine's decode ceiling.
-
-## Prefill goes the other way
-
-Prefill is compute-bound, so the ranking flips on the parts where compute leads. The Spark
-posts the highest prefill on the 3B (4721 tok/s mean) and beats the Mac there, even though
-it loses decode. So the Spark is not slow, it is bandwidth-starved on decode and strong on
-prefill. That split is the clearest single illustration of the two regimes.
-
-## Limitations and notes
-
-The Surface time-to-first-token runs high on every prompt (~3000-4000 ms), not only the
-first. Decode is healthy, so the model is GPU-resident. I read this as Windows
-prefill/scheduling overhead and did not chase it further.
-
-The Pi runs Ollama on CPU. It does not touch the Hailo-10H NPU, which needs its own SDK and
-compiled models. So the Pi number is a CPU edge floor, not an NPU result.
-
-I did not run the VRAM-wall case. A model larger than the 4060's 8 GB (for example
-`qwen2.5:14b` at ~9 GB Q4) would spill to shared memory and drop decode into single digits,
-which would show capacity as a separate bottleneck from bandwidth. That run is the obvious
-next addition.
-
-Everything here is single-stream, batch 1. Under concurrency the picture changes,
-especially for the Spark, where batched serving recovers a lot of throughput.
-
-## Reproduce
-
-Start Ollama, then run the harness with bare Python 3.
-
-```
-# macOS / Linux
-python3 bench_harness.py
-
-# Windows
-py bench_harness.py
-```
-
-Each machine writes `comparison_<hostname>.csv` and `results_<hostname>.md`. Missing models
-get pulled on first run.
+Three experiments, three different limits on the same local hardware. Bandwidth sets how
+fast a model runs. Capability sets whether its output actually works. And safety training is
+prompt-fragile, so what a model refuses depends on how you ask. A useful local-AI setup has
+to clear all three, and none of them show up in a spec sheet.
 
 ## Layout
 
 ```
 .
-├── bench_harness.py          # the harness
-├── README.md
-└── data/
-    ├── comparison_all.csv             # all four machines, merged
-    ├── summary.csv                    # per machine+model means + effective bandwidth
-    ├── comparison_VeranixWindows.csv
-    ├── results_Mac.md
-    ├── results_spark-8040.md
-    ├── results_VeranixWindows.md
-    └── results_raspberrypi.md
+├── README.md                  # this log
+├── benchmark.md               # 01: bandwidth vs decode, four machines
+├── bench_harness.py           # the benchmark harness (stdlib only)
+├── data/                      # 01: per-machine CSVs and results
+├── gameday.md                 # 02: one-shot game showdown + 4060 VRAM ceiling
+├── gameday/                   # 02: the Asteroids artifact + screenshot
+└── mcp-honeypot/              # 03: decoy MCP server, red-team harness, dataset
+    ├── server.py              #     the honeypot (4 fake tools, full logging)
+    ├── attacker.py            #     red-team harness (scripted + local-LLM modes)
+    ├── classify.py            #     intent classifier (local Ollama)
+    ├── report.py              #     model-by-model results table
+    ├── dashboard.html         #     live attack-type view
+    ├── prompts/               #     attack-prompt variants
+    ├── logs/                  #     the dataset (fake keys masked for publishing)
+    └── reports/summary.md     #     current findings table
 ```
 
-## Log
+## How this log grows
 
-Day 3 (Game Day): one-shot game showdown and 4060 VRAM ceiling. See [gameday.md](gameday.md).
+Each new experiment adds its own folder or writeup plus one numbered entry above, newest
+last. The entry states the question and the finding in a few lines; the linked file carries
+the method, tables, and notes. Nothing gets deleted when a later run revises an earlier
+read, it gets a new entry that says so.
