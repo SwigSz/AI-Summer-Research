@@ -1,0 +1,5 @@
+.venv/
+__pycache__/
+*.pyc
+logs/.instance_seed
+logs/.classify_offset

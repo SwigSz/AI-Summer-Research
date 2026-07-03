@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Honeypot — attack monitor</title>
+<style>
+  :root{
+    --bg:#0b0f14; --panel:#121821; --line:#1f2a37; --ink:#e6edf3; --dim:#8b98a5;
+    --benign:#3fb950; --reconnaissance:#d29922; --tool_poisoning_attempt:#a371f7;
+    --data_exfiltration:#f85149; --privilege_escalation:#ff7b72; --unknown:#6e7681; --error:#484f58;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:14px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  header{padding:20px 24px;border-bottom:1px solid var(--line);display:flex;
+    align-items:baseline;gap:14px;flex-wrap:wrap}
+  h1{font-size:16px;margin:0;letter-spacing:.5px}
+  .sub{color:var(--dim);font-size:12px}
+  .wrap{padding:24px;max-width:1100px;margin:0 auto}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:24px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px}
+  .card .n{font-size:26px;font-weight:600}
+  .card .l{color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:.6px;margin-top:2px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:18px;margin-bottom:24px}
+  .panel h2{font-size:12px;text-transform:uppercase;letter-spacing:.7px;color:var(--dim);margin:0 0 14px}
+  .bars{display:flex;flex-direction:column;gap:8px}
+  .bar-row{display:grid;grid-template-columns:170px 1fr 40px;align-items:center;gap:10px}
+  .bar-track{background:#0b0f14;border-radius:4px;height:16px;overflow:hidden}
+  .bar-fill{height:100%;border-radius:4px}
+  .tl{display:flex;align-items:flex-end;gap:3px;height:120px;border-bottom:1px solid var(--line);padding-bottom:0}
+  .tl-col{flex:1;display:flex;flex-direction:column-reverse;min-width:4px}
+  .tl-seg{width:100%}
+  .tl-labels{display:flex;justify-content:space-between;color:var(--dim);font-size:10px;margin-top:6px}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  th{text-align:left;color:var(--dim);font-weight:500;padding:6px 8px;border-bottom:1px solid var(--line);
+    text-transform:uppercase;font-size:10px;letter-spacing:.6px}
+  td{padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  .tag{display:inline-block;padding:1px 7px;border-radius:10px;font-size:11px;color:#0b0f14;font-weight:600}
+  .args{color:var(--dim);max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:11px;color:var(--dim)}
+  .legend span{display:inline-flex;align-items:center;gap:5px}
+  .dot{width:9px;height:9px;border-radius:2px;display:inline-block}
+  .empty{color:var(--dim);padding:30px;text-align:center}
+  .err{color:var(--data_exfiltration)}
+  button{background:var(--line);color:var(--ink);border:1px solid #2b3947;border-radius:6px;
+    padding:5px 12px;cursor:pointer;font:inherit;font-size:12px}
+  button:hover{background:#243244}
+</style>
+</head>
+<body>
+<header>
+  <h1>🍯 HONEYPOT</h1>
+  <span class="sub">attack intent monitor</span>
+  <span class="sub" id="status" style="margin-left:auto"></span>
+  <button id="refresh">refresh</button>
+</header>
+<div class="wrap">
+  <div class="cards" id="cards"></div>
+  <div class="panel">
+    <h2>Intent breakdown</h2>
+    <div class="bars" id="bars"></div>
+  </div>
+  <div class="panel">
+    <h2>Activity over time</h2>
+    <div class="tl" id="timeline"></div>
+    <div class="tl-labels" id="tl-labels"></div>
+    <div class="legend" id="legend"></div>
+  </div>
+  <div class="panel">
+    <h2>Recent events</h2>
+    <div id="table"></div>
+  </div>
+</div>
+<script>
+const LABELS = ["benign","reconnaissance","tool_poisoning_attempt",
+  "data_exfiltration","privilege_escalation","unknown","error"];
+const color = l => getComputedStyle(document.documentElement)
+  .getPropertyValue("--" + l).trim() || "#6e7681";
+const SOURCE = "logs/honeypot_classified.jsonl";
+
+async function load(){
+  const status = document.getElementById("status");
+  let text;
+  try{
+    const res = await fetch(SOURCE + "?t=" + Date.now());
+    if(!res.ok) throw new Error(res.status);
+    text = await res.text();
+  }catch(e){
+    status.innerHTML = '<span class="err">cannot read ' + SOURCE +
+      ' — serve this dir with: python3 -m http.server</span>';
+    return;
+  }
+  const events = text.trim().split("\n").filter(Boolean)
+    .map(l => { try{return JSON.parse(l)}catch{return null} }).filter(Boolean);
+  status.textContent = events.length + " events · " + new Date().toLocaleTimeString();
+  render(events);
+}
+
+function render(events){
+  const counts = {};
+  LABELS.forEach(l => counts[l] = 0);
+  events.forEach(e => { const i = LABELS.includes(e.intent) ? e.intent : "unknown"; counts[i]++; });
+
+  const threats = events.filter(e =>
+    ["reconnaissance","tool_poisoning_attempt","data_exfiltration","privilege_escalation"]
+    .includes(e.intent)).length;
+  const sessions = new Set(events.map(e => e.session_id)).size;
+
+  document.getElementById("cards").innerHTML = [
+    ["total events", events.length, "--ink"],
+    ["threats", threats, "--data_exfiltration"],
+    ["sessions", sessions, "--reconnaissance"],
+    ["exfil attempts", counts.data_exfiltration, "--data_exfiltration"],
+    ["priv-esc", counts.privilege_escalation, "--privilege_escalation"],
+  ].map(([l,n,c]) => `<div class="card"><div class="n" style="color:var(${c})">${n}</div>
+    <div class="l">${l}</div></div>`).join("");
+
+  const max = Math.max(1, ...LABELS.map(l => counts[l]));
+  document.getElementById("bars").innerHTML = LABELS.filter(l => counts[l] > 0 || l !== "error")
+    .map(l => `<div class="bar-row"><span>${l}</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${counts[l]/max*100}%;
+        background:${color(l)}"></div></div><span>${counts[l]}</span></div>`).join("");
+
+  renderTimeline(events);
+
+  document.getElementById("legend").innerHTML = LABELS.map(l =>
+    `<span><i class="dot" style="background:${color(l)}"></i>${l}</span>`).join("");
+
+  const recent = events.slice(-40).reverse();
+  document.getElementById("table").innerHTML = recent.length ? `<table>
+    <thead><tr><th>time</th><th>intent</th><th>tool</th><th>args</th><th>session</th></tr></thead>
+    <tbody>${recent.map(e => `<tr>
+      <td>${fmt(e.event_timestamp || e.classified_at)}</td>
+      <td><span class="tag" style="background:${color(e.intent)}">${e.intent||"?"}</span></td>
+      <td>${e.tool||""}</td>
+      <td class="args" title='${esc(JSON.stringify(e.arguments||{}))}'>${esc(JSON.stringify(e.arguments||{}))}</td>
+      <td>${(e.session_id||"").slice(0,8)}</td></tr>`).join("")}</tbody></table>`
+    : '<div class="empty">no classified events yet — run classify.py</div>';
+}
+
+function renderTimeline(events){
+  const tl = document.getElementById("timeline"), lab = document.getElementById("tl-labels");
+  const dated = events.map(e => ({t: new Date(e.event_timestamp || e.classified_at), i: e.intent}))
+    .filter(e => !isNaN(e.t));
+  if(!dated.length){ tl.innerHTML = '<div class="empty">no timeline data</div>'; lab.innerHTML=""; return; }
+  const BUCKETS = 24;
+  const min = Math.min(...dated.map(e => e.t)), max = Math.max(...dated.map(e => e.t));
+  const span = Math.max(1, max - min);
+  const cols = Array.from({length:BUCKETS}, () => ({}));
+  dated.forEach(e => {
+    const b = Math.min(BUCKETS-1, Math.floor((e.t - min)/span * BUCKETS));
+    const key = LABELS.includes(e.i) ? e.i : "unknown";
+    cols[b][key] = (cols[b][key]||0) + 1;
+  });
+  const peak = Math.max(1, ...cols.map(c => Object.values(c).reduce((a,b)=>a+b,0)));
+  tl.innerHTML = cols.map(c => {
+    const total = Object.values(c).reduce((a,b)=>a+b,0);
+    const h = total/peak*100;
+    const segs = LABELS.filter(l => c[l]).map(l =>
+      `<div class="tl-seg" style="height:${c[l]/total*100}%;background:${color(l)}"></div>`).join("");
+    return `<div class="tl-col" style="height:${h}%" title="${total} events">${segs}</div>`;
+  }).join("");
+  lab.innerHTML = `<span>${fmt(new Date(min).toISOString())}</span><span>${fmt(new Date(max).toISOString())}</span>`;
+}
+
+const fmt = s => { const d = new Date(s); return isNaN(d) ? "" :
+  d.toLocaleString([], {month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"}); };
+const esc = s => (s||"").replace(/[&<>']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;"}[c]));
+
+document.getElementById("refresh").onclick = load;
+load();
+setInterval(load, 10000);
+</script>
+</body>
+</html>
