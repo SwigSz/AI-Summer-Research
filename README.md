@@ -36,12 +36,21 @@ fabricated data, with honeytoken tripwires. Then red-teamed it with local models
 goal was reframed as a routine IT task. Same objective, opposite outcome, decided only by
 framing. Refusals are logged as data, not dropped. → [mcp-honeypot/](mcp-honeypot/)
 
+**04 · Model router (Jul 6): send each task to the model that fits it.**
+Built a router that classifies a task with deterministic keyword rules, then routes it
+through a LiteLLM proxy to the right local model: coding to `qwen3-coder:30b`, reasoning to
+`gpt-oss:20b`, everything else to `qwen3:4b`. Classification is code, not a model call, so
+routing stays predictable and cheap. Three test tasks each hit the correct model (a coding
+prompt, a proof, a fun fact), and every decision logs to `logs/router.jsonl` with its
+category, model, reason, latency, and tokens. → [model-router.md](model-router.md)
+
 ## The through-line
 
-Three experiments, three different limits on the same local hardware. Bandwidth sets how
-fast a model runs. Capability sets whether its output actually works. And safety training is
-prompt-fragile, so what a model refuses depends on how you ask. A useful local-AI setup has
-to clear all three, and none of them show up in a spec sheet.
+Four experiments, four limits on the same local hardware. Bandwidth sets how fast a model
+runs. Capability sets whether its output actually works. Safety training is prompt-fragile,
+so what a model refuses depends on how you ask. And no single model is best at everything, so
+the fourth build stops pretending one is and routes each task to the model that fits. None of
+these show up in a spec sheet.
 
 ## Layout
 
@@ -53,6 +62,7 @@ to clear all three, and none of them show up in a spec sheet.
 ├── data/                      # 01: per-machine CSVs and results
 ├── gameday.md                 # 02: one-shot game showdown + 4060 VRAM ceiling
 ├── gameday/                   # 02: the Asteroids artifact + screenshot
+├── model-router.md            # 04: task-to-model router over a LiteLLM proxy
 └── mcp-honeypot/              # 03: decoy MCP server, red-team harness, dataset
     ├── server.py              #     the honeypot (4 fake tools, full logging)
     ├── attacker.py            #     red-team harness (scripted + local-LLM modes)
