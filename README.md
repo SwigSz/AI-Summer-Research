@@ -56,6 +56,18 @@ efficient generalist: 11/12 at a quarter of reasoning's cost. Argues for difficu
 routing, not just task-type routing. n=1 per cell; hard-tier numbers carry run-to-run noise.
 → [variant_study.md](variant_study.md)
 
+**06 · Eval harness (Jul 8): a riddle beat every model, and "small" wasn't cheap.**
+Built a 48-task stratified benchmark (code/reasoning/math/instruction x easy/medium/hard x
+4, all objectively scored: unit tests, exact-match, deterministic format checks) and ran it
+5x per task at temp 0 across `qwen3-coder:30b`, `gpt-oss:20b`, and `qwen3:4b`. The
+burning-ropes logic puzzle failed 0/15 across every model; `gpt-oss:20b` didn't even answer
+it, hitting its 8192-token context cap on internal reasoning every single run. `qwen3:4b`
+matched or beat the bigger models on pass rate but overthought its way to 5-20x the tokens
+per answer (4134 vs 203 tokens on code, next to `qwen3-coder:30b`) -- small does not mean
+cheap. And the biggest coder model was worst at following exact output-format instructions
+(75%, missing 3 of 12 tasks completely). Wired the winners straight into the router:
+`router.py --auto` now routes by these results. → [eval_harness_study.md](eval_harness_study.md)
+
 ## The through-line
 
 Four experiments, four limits on the same local hardware. Bandwidth sets how fast a model
@@ -76,6 +88,7 @@ these show up in a spec sheet.
 ├── gameday/                   # 02: the Asteroids artifact + screenshot
 ├── model-router.md            # 04: task-to-model router over a LiteLLM proxy
 ├── variant_study.md           # 05: reasoning vs instruct vs coder, difficulty tiers
+├── eval_harness_study.md       # 06: 48-task stratified benchmark, router auto-mode
 └── mcp-honeypot/              # 03: decoy MCP server, red-team harness, dataset
     ├── server.py              #     the honeypot (4 fake tools, full logging)
     ├── attacker.py            #     red-team harness (scripted + local-LLM modes)
