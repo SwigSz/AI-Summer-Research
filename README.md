@@ -44,6 +44,18 @@ routing stays predictable and cheap. Three test tasks each hit the correct model
 prompt, a proof, a fun fact), and every decision logs to `logs/router.jsonl` with its
 category, model, reason, latency, and tokens. → [model-router.md](model-router.md)
 
+**05 · Variant study (Jul 7): the reasoning model's win is two hard tasks, not a clean sweep.**
+12 tasks (4 categories x 3 difficulty tiers), single run, temp 0, scored objectively (unit
+tests, exact-match, format checks). Compared reasoning (`gpt-oss:20b`), instruct
+(`qwen2.5:7b-instruct-q8_0`), and coder (`qwen2.5-coder:7b-instruct-q8_0`). All three tied
+3/3 on every easy and medium task; the gap only shows up on hard tier. Reasoning swept
+12/12, but that edge came entirely from 2 hard tasks the other two missed — on the other 10
+it matched their correctness at 10-15x the tokens (logic_easy: 40 vs 3) and was slower to
+answer despite faster decode, because it just writes far more of them. Instruct was the
+efficient generalist: 11/12 at a quarter of reasoning's cost. Argues for difficulty-aware
+routing, not just task-type routing. n=1 per cell; hard-tier numbers carry run-to-run noise.
+→ [variant_study.md](variant_study.md)
+
 ## The through-line
 
 Four experiments, four limits on the same local hardware. Bandwidth sets how fast a model
@@ -63,6 +75,7 @@ these show up in a spec sheet.
 ├── gameday.md                 # 02: one-shot game showdown + 4060 VRAM ceiling
 ├── gameday/                   # 02: the Asteroids artifact + screenshot
 ├── model-router.md            # 04: task-to-model router over a LiteLLM proxy
+├── variant_study.md           # 05: reasoning vs instruct vs coder, difficulty tiers
 └── mcp-honeypot/              # 03: decoy MCP server, red-team harness, dataset
     ├── server.py              #     the honeypot (4 fake tools, full logging)
     ├── attacker.py            #     red-team harness (scripted + local-LLM modes)
