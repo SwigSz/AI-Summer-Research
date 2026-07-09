@@ -1,0 +1,58 @@
+$ cd ~/lora && python3 evaluate.py
+test lines: 40
+Loading weights: 100%|████████████████| 290/290 [00:00<00:00, 10113.31it/s]
+/tmp/tmp8cnq64pg/cuda_utils.c:9:10: fatal error: Python.h: No such file or directory
+    9 | #include <Python.h>
+      |          ^~~~~~~~~~
+compilation terminated.
+cuda probe failed (CalledProcessError), falling back to cpu
+Loading weights: 100%|█████████████████| 290/290 [00:00<00:00, 4042.15it/s]
+device: cpu
+[  1/40] true=suspicious pred=suspicious raw='suspicious'
+[  2/40] true=suspicious pred=suspicious raw='suspicious'
+[  3/40] true=benign     pred=benign     raw='benign'
+[  4/40] true=benign     pred=benign     raw='benign'
+[  5/40] true=suspicious pred=suspicious raw='suspicious'
+[  6/40] true=benign     pred=benign     raw='benign'
+[  7/40] true=suspicious pred=suspicious raw='suspicious'
+[  8/40] true=suspicious pred=suspicious raw='suspicious'
+[  9/40] true=benign     pred=benign     raw='benign'
+[ 10/40] true=benign     pred=benign     raw='benign'
+[ 11/40] true=suspicious pred=suspicious raw='suspicious'
+[ 12/40] true=benign     pred=benign     raw='benign'
+[ 13/40] true=benign     pred=benign     raw='benign'
+[ 14/40] true=suspicious pred=suspicious raw='suspicious'
+[ 15/40] true=benign     pred=benign     raw='benign'
+[ 16/40] true=suspicious pred=suspicious raw='suspicious'
+[ 17/40] true=benign     pred=benign     raw='benign'
+[ 18/40] true=benign     pred=benign     raw='benign'
+[ 19/40] true=benign     pred=benign     raw='benign'
+[ 20/40] true=benign     pred=benign     raw='benign'
+[ 21/40] true=benign     pred=benign     raw='benign'
+[ 22/40] true=benign     pred=benign     raw='benign'
+[ 23/40] true=suspicious pred=suspicious raw='suspicious'
+[ 24/40] true=benign     pred=benign     raw='benign'
+[ 25/40] true=benign     pred=benign     raw='benign'
+[ 26/40] true=suspicious pred=suspicious raw='suspicious'
+[ 27/40] true=suspicious pred=suspicious raw='suspicious'
+[ 28/40] true=benign     pred=benign     raw='benign'
+[ 29/40] true=suspicious pred=suspicious raw='suspicious'
+[ 30/40] true=suspicious pred=suspicious raw='suspicious'
+[ 31/40] true=benign     pred=benign     raw='benign'
+[ 32/40] true=suspicious pred=suspicious raw='suspicious'
+[ 33/40] true=suspicious pred=suspicious raw='suspicious'
+[ 34/40] true=suspicious pred=suspicious raw='suspicious'
+[ 35/40] true=suspicious pred=suspicious raw='suspicious'
+[ 36/40] true=benign     pred=benign     raw='benign'
+[ 37/40] true=suspicious pred=suspicious raw='suspicious'
+[ 38/40] true=benign     pred=benign     raw='benign'
+[ 39/40] true=benign     pred=benign     raw='benign'
+[ 40/40] true=suspicious pred=suspicious raw='suspicious'
+
+accuracy: 40/40 = 100.0%
+unparsed (no label word in output): 0
+
+confusion (per true label):
+label         right  wrong  total
+benign           21      0     21
+suspicious       19      0     19

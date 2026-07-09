@@ -68,6 +68,16 @@ cheap. And the biggest coder model was worst at following exact output-format in
 (75%, missing 3 of 12 tasks completely). Wired the winners straight into the router:
 `router.py --auto` now routes by these results. → [eval_harness_study.md](eval_harness_study.md)
 
+**07 · LoRA fine-tune (Jul 9): "55% accuracy" hid a 5%-recall detector, and a tiny adapter fixed it.**
+Fine-tuned Qwen2.5-0.5B-Instruct to flag security log lines as benign/suspicious. Out of the
+box it scored 55%, but the error was entirely one-sided: it caught 21/21 benign lines and
+only **1 of 19 actual attacks** -- waving brute-force, SQLi, traversal, and reverse-shell
+lines through as safe. A PEFT LoRA adapter (r=16, 2.16M params = 0.44% of the model), trained
+3 epochs on CPU in ~7 minutes, took suspicious recall from 1/19 to **19/19** at 100% overall,
+zero false positives. 8.7 MB of trained weights on a frozen base, no GPU. The catch: data is
+synthetic and the test set shares generators with train, so this proves the adapter learned
+the patterns cleanly, not that it generalizes to real logs. → [lora/lora_study.md](lora/lora_study.md)
+
 ## The through-line
 
 Four experiments, four limits on the same local hardware. Bandwidth sets how fast a model
@@ -89,6 +99,13 @@ these show up in a spec sheet.
 ├── model-router.md            # 04: task-to-model router over a LiteLLM proxy
 ├── variant_study.md           # 05: reasoning vs instruct vs coder, difficulty tiers
 ├── eval_harness_study.md       # 06: 48-task stratified benchmark, router auto-mode
+├── lora/                      # 07: LoRA fine-tune, log benign/suspicious classifier
+│   ├── lora_study.md          #     writeup: baseline 55% -> adapter 100%
+│   ├── make_dataset.py        #     generate the 200-line labeled dataset
+│   ├── baseline.py            #     split + zero-shot base-model eval
+│   ├── train_lora.py          #     PEFT LoRA fine-tune -> adapter/
+│   ├── evaluate.py            #     base + adapter eval on the same test set
+│   └── adapter/               #     the trained 8.7 MB LoRA adapter
 └── mcp-honeypot/              # 03: decoy MCP server, red-team harness, dataset
     ├── server.py              #     the honeypot (4 fake tools, full logging)
     ├── attacker.py            #     red-team harness (scripted + local-LLM modes)

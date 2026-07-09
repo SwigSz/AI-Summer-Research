@@ -1,0 +1,21 @@
+$ cd ~/lora && python3 train_lora.py
+train examples: 160
+Loading weights: 100%|█████████████████| 290/290 [00:00<00:00, 3628.27it/s]
+trainable params: 2,162,688 || all params: 496,195,456 || trainable%: 0.4359
+{'loss': '0.5724', 'grad_norm': '27.18', 'learning_rate': '0.000185', 'epoch': '0.25'}
+{'loss': '0.269', 'grad_norm': '19.11', 'learning_rate': '0.0001683', 'epoch': '0.5'}
+{'loss': '0.04603', 'grad_norm': '0.6153', 'learning_rate': '0.0001517', 'epoch': '0.75'}
+{'loss': '0.002357', 'grad_norm': '0.007595', 'learning_rate': '0.000135', 'epoch': '1'}
+{'loss': '0.000219', 'grad_norm': '0.006266', 'learning_rate': '0.0001183', 'epoch': '1.25'}
+{'loss': '0.02945', 'grad_norm': '0.004095', 'learning_rate': '0.0001017', 'epoch': '1.5'}
+{'loss': '0.0001549', 'grad_norm': '0.005609', 'learning_rate': '8.5e-05', 'epoch': '1.75'}
+{'loss': '0.09479', 'grad_norm': '0.004359', 'learning_rate': '6.833e-05', 'epoch': '2'}
+{'loss': '0.06898', 'grad_norm': '0.008523', 'learning_rate': '5.167e-05', 'epoch': '2.25'}
+{'loss': '0.0003752', 'grad_norm': '1.908', 'learning_rate': '3.5e-05', 'epoch': '2.5'}
+{'loss': '0.0001633', 'grad_norm': '0.002911', 'learning_rate': '1.833e-05', 'epoch': '2.75'}
+{'loss': '0.0001531', 'grad_norm': '0.01115', 'learning_rate': '1.667e-06', 'epoch': '3'}
+{'train_runtime': '411.1', 'train_samples_per_second': '1.168', 'train_steps_per_second': '0.292', 'train_loss': '0.09034', 'epoch': '3'}
+100%|████████████████████████████████████| 120/120 [06:51<00:00,  3.43s/it]
+
+saved adapter to /home/veranix/lora/adapter
+train time: 411.2s (6.9 min) for 3 epochs
